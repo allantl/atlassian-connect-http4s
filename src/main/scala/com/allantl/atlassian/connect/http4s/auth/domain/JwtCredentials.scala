@@ -1,4 +1,4 @@
-package com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.domain
+package com.allantl.atlassian.connect.http4s.auth.domain
 
 import io.toolsplus.atlassian.jwt.api.CanonicalHttpRequest
 

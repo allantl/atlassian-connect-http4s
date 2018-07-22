@@ -1,6 +1,6 @@
 package com.allantl.atlassian.connect.http4s.auth.atlassian.jwt
 
-import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.domain.{CanonicalHttp4sHttpRequest, JwtCredentials}
+import com.allantl.atlassian.connect.http4s.auth.domain.{CanonicalHttp4sHttpRequest, JwtCredentials}
 import org.http4s.Request
 import org.http4s.headers.Authorization
 

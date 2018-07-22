@@ -3,7 +3,7 @@ package com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.actions
 import cats.Monad
 import cats.data.EitherT
 import cats.syntax.flatMap._
-import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.errors.JwtNotFound
+import com.allantl.atlassian.connect.http4s.auth.errors.JwtNotFound
 import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.{JwtAuthenticator, JwtExtractor}
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHostUser
 import org.http4s.{Request, Response, Status}

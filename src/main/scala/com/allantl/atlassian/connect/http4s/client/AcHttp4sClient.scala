@@ -5,7 +5,7 @@ import cats.syntax.applicative._
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.JwtGenerator
-import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.errors.JwtGeneratorError
+import com.allantl.atlassian.connect.http4s.auth.errors.JwtGeneratorError
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHost
 import org.http4s.headers.Authorization
 import org.http4s.util.CaseInsensitiveString

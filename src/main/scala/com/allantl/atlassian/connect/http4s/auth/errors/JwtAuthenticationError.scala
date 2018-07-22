@@ -1,4 +1,4 @@
-package com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.errors
+package com.allantl.atlassian.connect.http4s.auth.errors
 
 sealed trait JwtAuthenticationError {
   def message: String

@@ -5,8 +5,8 @@ import java.time.Duration
 import java.time.temporal.ChronoUnit
 
 import cats.syntax.either._
-import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.domain.CanonicalUriHttpRequest
-import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.errors.{
+import com.allantl.atlassian.connect.http4s.auth.domain.CanonicalUriHttpRequest
+import com.allantl.atlassian.connect.http4s.auth.errors.{
   BaseUrlMismatchError,
   InvalidSigningError,
   JwtGeneratorError,
@@ -18,7 +18,7 @@ import io.toolsplus.atlassian.jwt.api.Predef.RawJwt
 import io.toolsplus.atlassian.jwt.{HttpRequestCanonicalizer, JwtBuilder}
 import org.http4s.Uri
 
-class JwtGenerator(acConfig: AtlassianConnectConfig, addOnProps: AddOnProperties) {
+class JwtGenerator(implicit acConfig: AtlassianConnectConfig, addOnProps: AddOnProperties) {
 
   def generateToken(httpMethod: String, uri: Uri, host: AtlassianHost): Either[JwtGeneratorError, String] =
     isAbsoluteUri(uri)
@@ -28,7 +28,7 @@ class JwtGenerator(acConfig: AtlassianConnectConfig, addOnProps: AddOnProperties
   private def createToken(httpMethod: String, uri: Uri, host: AtlassianHost): Either[JwtGeneratorError, RawJwt] = {
     val canonicalHttpRequest = CanonicalUriHttpRequest(httpMethod, uri)
     val queryHash = HttpRequestCanonicalizer.computeCanonicalRequestHash(canonicalHttpRequest)
-    val expireAfter = Duration.of(acConfig.jwtExpirationTime, ChronoUnit.SECONDS)
+    val expireAfter = Duration.of(acConfig.jwtExpirationTimeInSeconds, ChronoUnit.SECONDS)
 
     new JwtBuilder(expireAfter)
       .withIssuer(addOnProps.key)
