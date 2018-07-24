@@ -58,6 +58,6 @@ class SelfJwtAuthenticator[F[_]: Monad: Logger]()(
         .getClaim(ClientKeyClaim)
         .asInstanceOf[String]
     )
-    maybeClientKeyClaim.fold(JwtBadCredentials("Missing client ket claim").asLeft[String])(Right(_))
+    maybeClientKeyClaim.fold(JwtBadCredentials("Missing client key claim").asLeft[String])(Right(_))
   }
 }
