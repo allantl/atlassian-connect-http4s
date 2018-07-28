@@ -1,5 +1,9 @@
 package com.allantl.atlassian.connect.http4s.domain
 
-abstract class HostError(msg: String) extends Exception(msg)
+sealed trait HostError {
+  def msg: String
+}
 
-case object HostNotFound extends HostError("Host not found")
+case object HostNotFound extends HostError {
+  override val msg = "Host not found"
+}

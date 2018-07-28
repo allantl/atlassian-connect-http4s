@@ -13,7 +13,7 @@ import org.http4s.{Credentials, Request}
 
 object AcHttp4sClient {
 
-  private val JwtAuthScheme = CaseInsensitiveString("JWT")
+  val JwtAuthScheme = CaseInsensitiveString("JWT")
 
   implicit class AcAuthenticatedClient[F[_]: Monad](req: F[Request[F]]) {
 
