@@ -1,6 +1,6 @@
 package com.allantl.atlassian.connect.http4s.auth.self.jwt.actions
 import cats.Monad
-import com.allantl.atlassian.connect.http4s.auth.self.jwt.{SelfJwtAuthenticator, SelfJwtGenerator}
+import com.allantl.atlassian.connect.http4s.auth.self.jwt.{SelfJwtGenerator, SelfJwtValidator}
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHostUser
 import org.http4s.{Request, Response}
 
@@ -11,7 +11,7 @@ import org.http4s.{Request, Response}
   */
 object SelfJwtHandler {
 
-  def apply[F[_]: Monad: SelfJwtAuthenticator](req: Request[F])(f: AtlassianHostUser => F[Response[F]])(
+  def apply[F[_]: Monad: SelfJwtValidator](req: Request[F])(f: AtlassianHostUser => F[Response[F]])(
       implicit selfJwtGenerator: SelfJwtGenerator): F[Response[F]] =
     SelfJwtAuthenticated(req) { implicit ahu =>
       WithSelfJwtHeader(f(ahu))

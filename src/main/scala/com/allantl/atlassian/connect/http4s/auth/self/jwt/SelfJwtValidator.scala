@@ -15,7 +15,7 @@ import io.toolsplus.atlassian.jwt.Jwt
 
 import scala.collection.JavaConverters._
 
-class SelfJwtAuthenticator[F[_]: Monad: Logger]()(
+private[http4s] class SelfJwtValidator[F[_]: Monad: Logger]()(
     implicit addOnProps: AddOnProperties,
     hostRepo: AtlassianHostRepositoryAlgebra[F]) {
 
@@ -60,4 +60,10 @@ class SelfJwtAuthenticator[F[_]: Monad: Logger]()(
     )
     maybeClientKeyClaim.fold(JwtBadCredentials("Missing client key claim").asLeft[String])(Right(_))
   }
+}
+
+object SelfJwtValidator {
+  implicit def fromSelfJwtAuthentication[F[_]](
+      implicit selfJwtAuthentication: SelfJwtAuthentication[F]): SelfJwtValidator[F] =
+    selfJwtAuthentication.selfJwtAuth
 }

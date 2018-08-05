@@ -18,12 +18,12 @@ class SelfJwtSpec extends AcHttp4sTest {
   "Self Jwt Generator & Authenticator" should {
     "be able to encode and decode jwt successfully" in Prop.forAll(atlassianHostGen(addonProperties.baseUrl)) {
       implicit host =>
-        implicit val acConfig = AtlassianConnectConfig(jwtExpirationTimeInSeconds = 5L)
+        implicit val acConfig = AtlassianConnectConfig(jwtExpirationTimeInSeconds = 5L, licenseCheck = false)
         implicit val repo = new TestAtlassianHostRepository()
         implicit val ahu = AtlassianHostUser(host, None)
 
         val jwtGen = new SelfJwtGenerator()
-        val jwtAuth = new SelfJwtAuthenticator[Id]()
+        val jwtAuth = new SelfJwtValidator[Id]()
         lazy val jwtEither = jwtGen.generateToken()
 
         jwtEither must beRight
@@ -36,12 +36,12 @@ class SelfJwtSpec extends AcHttp4sTest {
     }
 
     "fail authentication if jwt is expired" in Prop.forAll(atlassianHostGen(addonProperties.baseUrl)) { implicit host =>
-      implicit val acConfig = AtlassianConnectConfig(jwtExpirationTimeInSeconds = -100L)
+      implicit val acConfig = AtlassianConnectConfig(jwtExpirationTimeInSeconds = -100L, licenseCheck = false)
       implicit val repo = new TestAtlassianHostRepository()
       implicit val ahu = AtlassianHostUser(host, None)
 
       val jwtGen = new SelfJwtGenerator()
-      val jwtAuth = new SelfJwtAuthenticator[Id]()
+      val jwtAuth = new SelfJwtValidator[Id]()
       lazy val jwtEither = jwtGen.generateToken()
 
       jwtEither must beRight

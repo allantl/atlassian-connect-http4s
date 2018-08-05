@@ -18,7 +18,7 @@ import io.toolsplus.atlassian.jwt.api.Predef.RawJwt
 import io.toolsplus.atlassian.jwt.{HttpRequestCanonicalizer, JwtBuilder}
 import org.http4s.Uri
 
-class JwtGenerator(implicit acConfig: AtlassianConnectConfig, addOnProps: AddOnProperties) {
+protected[http4s] class JwtGenerator(implicit acConfig: AtlassianConnectConfig, addOnProps: AddOnProperties) {
 
   def generateToken(httpMethod: String, uri: Uri, host: AtlassianHost): Either[JwtGeneratorError, String] =
     isAbsoluteUri(uri)
@@ -50,4 +50,9 @@ class JwtGenerator(implicit acConfig: AtlassianConnectConfig, addOnProps: AddOnP
   private def toJavaUri(uri: Uri): JavaURI =
     new JavaURI(uri.renderString)
 
+}
+
+object JwtGenerator {
+  implicit def fromJwtAuthenticator[F[_]](implicit jwt: JwtAuthentication[F]): JwtValidator[F] =
+    jwt.jwtAuthenticator
 }

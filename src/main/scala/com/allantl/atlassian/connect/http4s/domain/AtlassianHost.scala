@@ -17,6 +17,10 @@ case class AtlassianHost(
     installed: Boolean)
 
 object AtlassianHost {
+
+  implicit def fromAtlassianHostUser(implicit ahu: AtlassianHostUser): AtlassianHost =
+    ahu.host
+
   def newInstallationRecord(installEvent: InstallEvent): AtlassianHost =
     AtlassianHost(
       installEvent.clientKey,

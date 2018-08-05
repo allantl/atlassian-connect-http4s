@@ -11,9 +11,9 @@ import com.allantl.atlassian.connect.http4s.mock.repository.{NotFoundHostReposit
 import org.http4s.{Method, Request, Uri}
 import org.scalacheck.Prop
 
-class JwtAuthenticatorSpec extends AcHttp4sTest {
+class JwtValidatorSpec extends AcHttp4sTest {
 
-  implicit val acConfig = AtlassianConnectConfig(jwtExpirationTimeInSeconds = 5L)
+  implicit val acConfig = AtlassianConnectConfig(jwtExpirationTimeInSeconds = 5L, licenseCheck = false)
   implicit val addOnProps = AddOnProperties("com.allantl.http4s", "AcHttp4s", "https://com.allantl.http4s")
   implicit val logging = NoLogging[Id]()
 
@@ -39,7 +39,7 @@ class JwtAuthenticatorSpec extends AcHttp4sTest {
     "fail if jwt cannot be parsed" in Prop.forAll(atlassianHostGen(addOnProps.baseUrl)) { implicit host =>
       withJwtCredentials { jwtCredentials =>
         implicit val repo = new TestAtlassianHostRepository[Id]()
-        val jwtAuthenticator = new JwtAuthenticator[Id]()
+        val jwtAuthenticator = new JwtValidator[Id]()
         val invalid = jwtCredentials.copy(rawJwt = "invalidJwt")
         jwtAuthenticator.authenticate(invalid).value must beLeft
       }
@@ -48,7 +48,7 @@ class JwtAuthenticatorSpec extends AcHttp4sTest {
     "fail if jwt host could not be found" in Prop.forAll(atlassianHostGen(addOnProps.baseUrl)) { implicit host =>
       withJwtCredentials { jwtCredentials =>
         implicit val repo = new NotFoundHostRepository[Id]()
-        val jwtAuthenticator = new JwtAuthenticator[Id]()
+        val jwtAuthenticator = new JwtValidator[Id]()
         jwtAuthenticator.authenticate(jwtCredentials).value must beLeft(
           UnknownIssuer(addOnProps.key): JwtAuthenticationError)
       }
@@ -57,16 +57,16 @@ class JwtAuthenticatorSpec extends AcHttp4sTest {
     "fail if qsh does not match" in Prop.forAll(atlassianHostGen(addOnProps.baseUrl)) { implicit host =>
       implicit val repo = new TestAtlassianHostRepository[Id]()
       implicit val uri = Option(Uri.unsafeFromString(s"${host.baseUrl}/test/url"))
-      val jwtAuthenticator = new JwtAuthenticator[Id]()
+      val jwtAuthenticator = new JwtValidator[Id]()
       withJwtCredentials { jwtCredentials =>
         jwtAuthenticator.authenticate(jwtCredentials).value must beLeft(haveClass[InvalidJwt])
       }
     }
 
     "fail if jwt is expired" in Prop.forAll(atlassianHostGen(addOnProps.baseUrl)) { implicit host =>
-      val config = AtlassianConnectConfig(jwtExpirationTimeInSeconds = -1000L)
+      val config = AtlassianConnectConfig(jwtExpirationTimeInSeconds = -1000L, licenseCheck = false)
       implicit val repo = new TestAtlassianHostRepository[Id]()
-      val jwtAuthenticator = new JwtAuthenticator[Id]()
+      val jwtAuthenticator = new JwtValidator[Id]()
       withJwtCredentials { jwtCredentials =>
         jwtAuthenticator.authenticate(jwtCredentials).value must beLeft(haveClass[InvalidJwt])
       }(host, config)
@@ -74,7 +74,7 @@ class JwtAuthenticatorSpec extends AcHttp4sTest {
 
     "successfully authenticate valid jwt" in Prop.forAll(atlassianHostGen(addOnProps.baseUrl)) { implicit host =>
       implicit val repo = new TestAtlassianHostRepository[Id]()
-      val jwtAuthenticator = new JwtAuthenticator[Id]()
+      val jwtAuthenticator = new JwtValidator[Id]()
       withJwtCredentials { jwtCredentials =>
         jwtAuthenticator.authenticate(jwtCredentials).value must beRight
       }

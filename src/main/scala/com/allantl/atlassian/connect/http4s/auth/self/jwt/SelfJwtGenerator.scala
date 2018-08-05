@@ -10,7 +10,7 @@ import io.toolsplus.atlassian.jwt.JwtBuilder
 import cats.syntax.bifunctor._
 import cats.instances.either._
 
-class SelfJwtGenerator(implicit acConfig: AtlassianConnectConfig, addOnProperties: AddOnProperties) {
+private[http4s] class SelfJwtGenerator(implicit acConfig: AtlassianConnectConfig, addOnProperties: AddOnProperties) {
 
   def generateToken()(implicit hostUser: AtlassianHostUser): Either[JwtGeneratorError, String] = {
     val expirationAfter = Duration.of(acConfig.jwtExpirationTimeInSeconds, ChronoUnit.SECONDS)
@@ -21,4 +21,10 @@ class SelfJwtGenerator(implicit acConfig: AtlassianConnectConfig, addOnPropertie
     hostUser.userKey.map(jwt.withSubject)
     jwt.build(hostUser.host.sharedSecret).leftMap(_ => InvalidSigningError)
   }
+}
+
+object SelfJwtGenerator {
+  implicit def fromSelfJwtAuthentication[F[_]](
+      implicit selfJwtAuthentication: SelfJwtAuthentication[F]): SelfJwtGenerator =
+    selfJwtAuthentication.selfJwtGen
 }

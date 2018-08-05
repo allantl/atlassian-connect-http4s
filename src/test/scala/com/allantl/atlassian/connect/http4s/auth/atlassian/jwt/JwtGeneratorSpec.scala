@@ -9,7 +9,7 @@ import org.scalacheck.Prop
 
 class JwtGeneratorSpec extends AcHttp4sTest {
 
-  implicit val acConfig = AtlassianConnectConfig(jwtExpirationTimeInSeconds = 5L)
+  implicit val acConfig = AtlassianConnectConfig(jwtExpirationTimeInSeconds = 5L, licenseCheck = false)
   implicit val addonProperties = AddOnProperties("com.allantl.http4s", "AcHttp4s", "https://com.allantl.http4s")
   val jwtGen = new JwtGenerator()
 
