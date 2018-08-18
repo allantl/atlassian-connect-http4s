@@ -11,7 +11,8 @@ import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.actions.AcJwtAuth
 import com.allantl.atlassian.connect.http4s.services.lifecycle.LifecycleService
 import org.http4s.circe._
 
-class LifecycleEndpoints[F[_]: Effect: JwtAuthentication](lifecycleService: LifecycleService[F]) extends Http4sDsl[F] {
+class LifecycleEndpoints[F[_]: Effect: JwtAuthentication](lifecycleService: LifecycleService[F])
+    extends Http4sDsl[F] {
 
   implicit val installedDecoder: EntityDecoder[F, InstallEvent] = jsonOf[F, InstallEvent]
   implicit val uninstalledDecoder: EntityDecoder[F, UninstallEvent] = jsonOf[F, UninstallEvent]

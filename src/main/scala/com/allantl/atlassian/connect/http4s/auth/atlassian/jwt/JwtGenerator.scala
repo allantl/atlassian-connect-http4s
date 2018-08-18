@@ -18,14 +18,22 @@ import io.toolsplus.atlassian.jwt.api.Predef.RawJwt
 import io.toolsplus.atlassian.jwt.{HttpRequestCanonicalizer, JwtBuilder}
 import org.http4s.Uri
 
-protected[http4s] class JwtGenerator(implicit acConfig: AtlassianConnectConfig, addOnProps: AddOnProperties) {
+protected[http4s] class JwtGenerator(
+    implicit acConfig: AtlassianConnectConfig,
+    addOnProps: AddOnProperties) {
 
-  def generateToken(httpMethod: String, uri: Uri, host: AtlassianHost): Either[JwtGeneratorError, String] =
+  def generateToken(
+      httpMethod: String,
+      uri: Uri,
+      host: AtlassianHost): Either[JwtGeneratorError, String] =
     isAbsoluteUri(uri)
       .flatMap(isRequestToHost(_, host))
       .flatMap(createToken(httpMethod, _, host))
 
-  private def createToken(httpMethod: String, uri: Uri, host: AtlassianHost): Either[JwtGeneratorError, RawJwt] = {
+  private def createToken(
+      httpMethod: String,
+      uri: Uri,
+      host: AtlassianHost): Either[JwtGeneratorError, RawJwt] = {
     val canonicalHttpRequest = CanonicalUriHttpRequest(httpMethod, uri)
     val queryHash = HttpRequestCanonicalizer.computeCanonicalRequestHash(canonicalHttpRequest)
     val expireAfter = Duration.of(acConfig.jwtExpirationTimeInSeconds, ChronoUnit.SECONDS)

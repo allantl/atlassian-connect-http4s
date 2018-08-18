@@ -19,7 +19,9 @@ private[http4s] class SelfJwtValidator[F[_]: Monad: Logger]()(
     implicit addOnProps: AddOnProperties,
     hostRepo: AtlassianHostRepositoryAlgebra[F]) {
 
-  def authenticate(jwtCredentials: JwtCredentials): EitherT[F, JwtAuthenticationError, AtlassianHostUser] =
+  def authenticate(
+      jwtCredentials: JwtCredentials
+  ): EitherT[F, JwtAuthenticationError, AtlassianHostUser] =
     for {
       jwt <- parseJwt(jwtCredentials.rawJwt).toEitherT[F]
       clientKey <- extractClientKey(jwt).toEitherT[F]
@@ -52,7 +54,8 @@ private[http4s] class SelfJwtValidator[F[_]: Monad: Logger]()(
         Left(JwtBadCredentials(s"Invalid audience: $audience"))
     }
 
-  private def clientKeyFromJwtClaims(unverifiedClaims: JWTClaimsSet): Either[JwtAuthenticationError, String] = {
+  private def clientKeyFromJwtClaims(
+      unverifiedClaims: JWTClaimsSet): Either[JwtAuthenticationError, String] = {
     val maybeClientKeyClaim = Option(
       unverifiedClaims
         .getClaim(ClientKeyClaim)

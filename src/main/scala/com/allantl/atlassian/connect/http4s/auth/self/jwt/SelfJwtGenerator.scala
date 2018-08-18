@@ -10,7 +10,9 @@ import io.toolsplus.atlassian.jwt.JwtBuilder
 import cats.syntax.bifunctor._
 import cats.instances.either._
 
-private[http4s] class SelfJwtGenerator(implicit acConfig: AtlassianConnectConfig, addOnProperties: AddOnProperties) {
+private[http4s] class SelfJwtGenerator(
+    implicit acConfig: AtlassianConnectConfig,
+    addOnProperties: AddOnProperties) {
 
   def generateToken()(implicit hostUser: AtlassianHostUser): Either[JwtGeneratorError, String] = {
     val expirationAfter = Duration.of(acConfig.jwtExpirationTimeInSeconds, ChronoUnit.SECONDS)

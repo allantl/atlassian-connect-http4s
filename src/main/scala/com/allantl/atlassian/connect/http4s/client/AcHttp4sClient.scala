@@ -28,7 +28,9 @@ object AcHttp4sClient {
         })
       }
 
-    def acAuthenticatedQuick(implicit jwtGenerator: JwtGenerator, atlassianHost: AtlassianHost): F[Request[F]] =
+    def acAuthenticatedQuick(
+        implicit jwtGenerator: JwtGenerator,
+        atlassianHost: AtlassianHost): F[Request[F]] =
       acAuthenticated.flatMap {
         _.fold(
           _ => req,

@@ -19,7 +19,8 @@ object SelfJwtAuthenticated {
     } yield f(ahu)
 
     result.value.flatMap {
-      case Left(e) => Response[F](Status.Unauthorized).withBody(s"JWT validation failed: ${e.message}")
+      case Left(e) =>
+        Response[F](Status.Unauthorized).withBody(s"JWT validation failed: ${e.message}")
       case Right(r) => r
     }
   }
