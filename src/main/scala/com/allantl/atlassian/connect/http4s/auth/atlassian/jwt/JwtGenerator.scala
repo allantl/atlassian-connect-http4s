@@ -61,6 +61,6 @@ protected[http4s] class JwtGenerator(
 }
 
 object JwtGenerator {
-  implicit def fromJwtAuthenticator[F[_]](implicit jwt: JwtAuthentication[F]): JwtValidator[F] =
-    jwt.jwtAuthenticator
+  implicit def fromJwtAuthenticator[F[_]](implicit jwt: JwtAuthentication[F]): JwtGenerator =
+    jwt.jwtGenerator
 }

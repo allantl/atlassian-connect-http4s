@@ -1,5 +1,4 @@
 package com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.actions
-
 import cats.Monad
 import cats.data.EitherT
 import cats.syntax.flatMap._

@@ -1,5 +1,4 @@
 package com.allantl.atlassian.connect.http4s.auth.self.jwt
-
 import cats.Monad
 import cats.data.EitherT
 import cats.syntax.either._
