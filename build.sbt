@@ -1,15 +1,11 @@
-val Http4sVersion = "0.18.14"
-val Specs2Version = "4.2.0"
+val Http4sVersion = "0.18.21"
+val Specs2Version = "4.3.5"
 val LogbackVersion = "1.2.3"
-val CirceVersion = "0.9.3"
+val CirceVersion = "0.10.1"
 val AtlassianJwtVersion = "0.1.5"
 
 val ScalaVersion = "2.12.6"
-
-val mainAppDeps = Seq(
-  "org.tpolecat" %% "doobie-core" % "0.5.3",
-  "org.tpolecat" %% "doobie-postgres"  % "0.5.3"
-)
+val DoobieVersion = "0.5.3"
 
 val compilerOptions = Seq(
   "-deprecation",                      // Emit warning and location for usages of deprecated APIs.
@@ -69,17 +65,24 @@ lazy val root = (project in file("."))
       "org.http4s" %% "http4s-blaze-client" % Http4sVersion,
       "org.http4s" %% "http4s-circe" % Http4sVersion,
       "org.http4s" %% "http4s-dsl" % Http4sVersion,
-      "org.specs2" %% "specs2-core" % Specs2Version % "test",
-      "org.specs2" %% "specs2-scalacheck" % Specs2Version % "test",
+
+      "org.tpolecat" %% "doobie-core" % DoobieVersion,
+      "org.tpolecat" %% "doobie-postgres"  % DoobieVersion,
+
       "ch.qos.logback" % "logback-classic" % LogbackVersion,
-      "co.fs2" %% "fs2-io" % "0.10.4",
+
       "io.circe" %% "circe-core" % CirceVersion,
       "io.circe" %% "circe-generic" % CirceVersion,
       "io.circe" %% "circe-parser" % CirceVersion,
+
       "io.toolsplus" %% "atlassian-jwt-generators" % AtlassianJwtVersion,
       "io.toolsplus" %% "atlassian-jwt-core" % AtlassianJwtVersion,
-      "io.chrisdavenport" %% "log4cats-core"  % "0.0.7"
+      "io.chrisdavenport" %% "log4cats-core"  % "0.0.7",
+      "com.allantl" %% "jira4s" % "0.0.1-SNAPSHOT"
     ),
-    libraryDependencies ++= mainAppDeps,
+    libraryDependencies ++= Seq(
+      "org.specs2" %% "specs2-core" % Specs2Version % "test",
+      "org.specs2" %% "specs2-scalacheck" % Specs2Version % "test",
+    ),
     scalacOptions ++= compilerOptions,
   )

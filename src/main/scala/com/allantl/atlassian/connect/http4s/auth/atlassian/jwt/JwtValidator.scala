@@ -11,8 +11,9 @@ import com.allantl.atlassian.connect.http4s.repository.algebra.AtlassianHostRepo
 import io.chrisdavenport.log4cats.Logger
 import io.toolsplus.atlassian.jwt.Jwt
 
-private[http4s] class JwtValidator[F[_]: Monad: Logger](
-    implicit hostRepo: AtlassianHostRepositoryAlgebra[F]) {
+class JwtValidator[F[_]: Monad: Logger](
+    implicit hostRepo: AtlassianHostRepositoryAlgebra[F]
+) {
 
   def authenticate(
       jwtCredentials: JwtCredentials
@@ -32,9 +33,4 @@ private[http4s] class JwtValidator[F[_]: Monad: Logger](
       )
     hostClientKey
   }
-}
-
-object JwtValidator {
-  implicit def fromJwtAuthenticator[F[_]](implicit jwt: JwtAuthentication[F]): JwtValidator[F] =
-    jwt.jwtAuthenticator
 }

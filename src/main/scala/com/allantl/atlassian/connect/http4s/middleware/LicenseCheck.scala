@@ -6,11 +6,12 @@ import cats.data.Kleisli
 import com.allantl.atlassian.connect.http4s.configs.AtlassianConnectConfig
 
 class LicenseCheck[F[_]: Functor](ifUnlicensed: HttpService[F])(
-    implicit acConfig: AtlassianConnectConfig) {
+    implicit acConfig: AtlassianConnectConfig
+) {
 
   def apply(service: HttpService[F]): HttpService[F] =
     Kleisli { req: Request[F] =>
-      (acConfig.licenseCheck, req.params.get("lic")) match {
+      (acConfig.licenseCheckEnabled, req.params.get("lic")) match {
         case (false, _) => service(req)
         case (true, Some("active")) => service(req)
         case _ => ifUnlicensed(req)

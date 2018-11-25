@@ -1,4 +1,4 @@
-package com.allantl.atlassian.connect.http4s.auth.self.jwt
+package com.allantl.atlassian.connect.http4s.utils
 
 import java.time.Duration
 import java.time.temporal.ChronoUnit
@@ -11,8 +11,11 @@ import cats.syntax.bifunctor._
 import cats.instances.either._
 
 private[http4s] class SelfJwtGenerator(
-    implicit acConfig: AtlassianConnectConfig,
-    addOnProperties: AddOnProperties) {
+    implicit addOnProperties: AddOnProperties,
+    acConfig: AtlassianConnectConfig
+) {
+
+  private val ClientKeyClaim = "clientKey"
 
   def generateToken()(implicit hostUser: AtlassianHostUser): Either[JwtGeneratorError, String] = {
     val expirationAfter = Duration.of(acConfig.jwtExpirationTimeInSeconds, ChronoUnit.SECONDS)
@@ -23,10 +26,4 @@ private[http4s] class SelfJwtGenerator(
     hostUser.userKey.map(jwt.withSubject)
     jwt.build(hostUser.host.sharedSecret).leftMap(_ => InvalidSigningError)
   }
-}
-
-object SelfJwtGenerator {
-  implicit def fromSelfJwtAuthentication[F[_]](
-      implicit selfJwtAuthentication: SelfJwtAuthentication[F]): SelfJwtGenerator =
-    selfJwtAuthentication.selfJwtGen
 }

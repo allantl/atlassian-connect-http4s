@@ -1,4 +1,5 @@
 package com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.actions
+
 import cats.Monad
 import cats.data.EitherT
 import cats.syntax.flatMap._
@@ -9,7 +10,6 @@ import org.http4s.{Request, Response, Status}
 
 /**
   * Atlassian Connect Jwt Authentication
-  *
   */
 object AcJwtAuthenticated {
 

@@ -7,6 +7,7 @@ import com.allantl.atlassian.connect.http4s.configs.{AddOnProperties, AtlassianC
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHostUser
 import com.allantl.atlassian.connect.http4s.mock.logging.NoLogging
 import com.allantl.atlassian.connect.http4s.mock.repository.TestAtlassianHostRepository
+import com.allantl.atlassian.connect.http4s.utils.SelfJwtGenerator
 import org.http4s.{Method, Request, Uri}
 import org.scalacheck.Prop
 
@@ -18,7 +19,7 @@ class SelfJwtSpec extends AcHttp4sTest {
   "Self Jwt Generator & Authenticator" should {
     "be able to encode and decode jwt successfully" in Prop.forAll(atlassianHostGen(addonProperties.baseUrl)) {
       implicit host =>
-        implicit val acConfig = AtlassianConnectConfig(jwtExpirationTimeInSeconds = 5L, licenseCheck = false)
+        implicit val acConfig = AtlassianConnectConfig(5L, licenseCheckEnabled = false)
         implicit val repo = new TestAtlassianHostRepository()
         implicit val ahu = AtlassianHostUser(host, None)
 
@@ -36,7 +37,7 @@ class SelfJwtSpec extends AcHttp4sTest {
     }
 
     "fail authentication if jwt is expired" in Prop.forAll(atlassianHostGen(addonProperties.baseUrl)) { implicit host =>
-      implicit val acConfig = AtlassianConnectConfig(jwtExpirationTimeInSeconds = -100L, licenseCheck = false)
+      implicit val acConfig = AtlassianConnectConfig(-100L, licenseCheckEnabled = false)
       implicit val repo = new TestAtlassianHostRepository()
       implicit val ahu = AtlassianHostUser(host, None)
 

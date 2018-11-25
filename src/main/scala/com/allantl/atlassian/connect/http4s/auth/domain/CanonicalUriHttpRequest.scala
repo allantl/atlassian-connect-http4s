@@ -12,5 +12,6 @@ case class CanonicalUriHttpRequest(httpMethod: String, uri: Uri) extends Canonic
     if (relPath.isEmpty) "/" else relPath
   }
 
-  override def parameterMap: Map[String, Seq[String]] = uri.multiParams
+  override def parameterMap: Map[String, Seq[String]] =
+    uri.multiParams
 }
