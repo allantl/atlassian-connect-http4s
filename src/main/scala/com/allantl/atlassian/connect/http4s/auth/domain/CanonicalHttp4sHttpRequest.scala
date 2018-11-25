@@ -10,10 +10,7 @@ case class CanonicalHttp4sHttpRequest[F[_]](req: Request[F]) extends CanonicalHt
 
   override def method: String = req.method.name
 
-  override def relativePath: String = {
-    val path = req.pathInfo
-    if (path.isEmpty) "/" else path
-  }
+  override def relativePath: String = req.uri.path
 
   override def parameterMap: Map[String, Seq[String]] = req.multiParams
 }
