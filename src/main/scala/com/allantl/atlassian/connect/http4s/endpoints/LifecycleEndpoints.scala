@@ -7,7 +7,7 @@ import com.allantl.atlassian.connect.http4s.domain.lifecycle.{InstallEvent, Unin
 import cats.syntax.functor._
 import cats.syntax.flatMap._
 import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.JwtValidator
-import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.actions.AcJwtAuthenticated
+import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.actions.JwtAuthenticated
 import com.allantl.atlassian.connect.http4s.services.lifecycle.LifecycleService
 import org.http4s.circe._
 
@@ -27,7 +27,7 @@ class LifecycleEndpoints[F[_]: Effect: JwtValidator](lifecycleService: Lifecycle
         } yield ok
 
       case req @ POST -> Root / "uninstalled" =>
-        AcJwtAuthenticated(req) { _ =>
+        JwtAuthenticated(req) { _ =>
           for {
             uninstallEvent <- req.as[UninstallEvent]
             errOrSuccess <- lifecycleService.uninstall(uninstallEvent).value

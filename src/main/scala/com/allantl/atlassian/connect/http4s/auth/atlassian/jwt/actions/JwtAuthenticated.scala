@@ -11,7 +11,7 @@ import org.http4s.{Request, Response, Status}
 /**
   * Atlassian Connect Jwt Authentication
   */
-object AcJwtAuthenticated {
+object JwtAuthenticated {
 
   def apply[F[_]: Monad](req: Request[F])(f: AtlassianHostUser => F[Response[F]])(
       implicit jwtValidator: JwtValidator[F]): F[Response[F]] = {
