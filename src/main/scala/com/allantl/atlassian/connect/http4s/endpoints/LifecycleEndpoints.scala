@@ -32,7 +32,7 @@ class LifecycleEndpoints[F[_]: Effect: JwtValidator](lifecycleService: Lifecycle
             uninstallEvent <- req.as[UninstallEvent]
             errOrSuccess <- lifecycleService.uninstall(uninstallEvent).value
             response <- errOrSuccess.fold(
-              _ => NotFound(s"Unable to uninstall traffic lights from ${uninstallEvent.baseUrl}"),
+              _ => NotFound(s"Unable to uninstall addon from ${uninstallEvent.baseUrl}"),
               _ => Ok()
             )
           } yield response
