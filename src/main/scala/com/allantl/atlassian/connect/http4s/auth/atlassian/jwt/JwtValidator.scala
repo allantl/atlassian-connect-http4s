@@ -17,7 +17,7 @@ class JwtValidator[F[_]: Monad: Logger: AtlassianHostRepositoryAlgebra]() {
       jwtCredentials: JwtCredentials
   ): EitherT[F, JwtAuthenticationError, AtlassianHostUser] =
     for {
-      jwt <- parseJwt(jwtCredentials.rawJwt).toEitherT[F]
+      jwt <- EitherT(parseJwt(jwtCredentials.rawJwt))
       clientKey <- extractClientKey(jwt).toEitherT[F]
       host <- EitherT(findInstalledHost(clientKey))
       verifiedToken <- EitherT(verifyJwt(jwtCredentials, host))

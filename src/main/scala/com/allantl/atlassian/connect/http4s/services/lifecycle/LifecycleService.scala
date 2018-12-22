@@ -32,14 +32,17 @@ class LifecycleService[F[_]: Monad: Logger](hostRepo: AtlassianHostRepositoryAlg
           newInstallationRecord(installEvent).pure[F]
       }
       host <- hostRepo.save(record)
-      _ = Logger[F].info(s"Successfully installed host $host from payload: $installEvent")
+      _ <- Logger[F].info(s"Successfully installed host $host from payload: $installEvent")
     } yield ()
 
   def uninstall(uninstallEvent: UninstallEvent): EitherT[F, HostError, Unit] =
     for {
       host <- EitherT(
-        hostRepo.findByClientKey(uninstallEvent.clientKey).map(_.toRight(HostNotFound: HostError)))
+        hostRepo.findByClientKey(uninstallEvent.clientKey).map(_.toRight(HostNotFound: HostError))
+      )
       _ <- EitherT.liftF(hostRepo.save(host.copy(installed = false)))
-      _ = Logger[F].info(s"Successfully uninstalled host $host from payload: $uninstallEvent")
+      _ <- EitherT.liftF(
+        Logger[F].info(s"Successfully uninstalled host $host from payload: $uninstallEvent")
+      )
     } yield ()
 }

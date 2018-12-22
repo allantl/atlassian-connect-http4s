@@ -13,16 +13,22 @@ import io.toolsplus.atlassian.jwt.{HttpRequestCanonicalizer, Jwt, JwtParser, Jwt
 import cats.syntax.either._
 import cats.syntax.applicative._
 import cats.syntax.flatMap._
+import cats.syntax.functor._
 import cats.syntax.apply._
 import com.allantl.atlassian.connect.http4s.repository.algebra.AtlassianHostRepositoryAlgebra
 
 object JwtAuthenticatorUtils {
 
-  def parseJwt[F[_]: Logger](rawJwt: String): Either[JwtAuthenticationError, Jwt] =
-    JwtParser.parse(rawJwt).leftMap { e =>
-      Logger[F].error(s"Parsing of JWT failed: $e")
-      InvalidJwt(e.getMessage())
-    }
+  def parseJwt[F[_]: Monad: Logger](rawJwt: String): F[Either[JwtAuthenticationError, Jwt]] =
+    for {
+      jwtOrErr <- JwtParser.parse(rawJwt).pure[F]
+      res <- jwtOrErr.fold(
+        e =>
+          Logger[F]
+            .error(s"Parsing of JWT failed: $e") *> InvalidJwt(e.getMessage()).asLeft[Jwt].pure[F],
+        jwt => jwt.asRight[JwtAuthenticationError].pure[F]
+      )
+    } yield res
 
   def findInstalledHost[F[_]: Monad: Logger](clientKey: String)(
       implicit hostRepo: AtlassianHostRepositoryAlgebra[F])
