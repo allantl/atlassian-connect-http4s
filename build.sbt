@@ -55,6 +55,24 @@ val compilerOptions = Seq(
   "-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
 )
 
+lazy val ac_config = (project in file("ac-config"))
+  .settings(
+    organization := "com.allantl",
+    name := "atlassian-connect-config",
+    scalacOptions ++= compilerOptions
+  )
+
+lazy val jira_client = (project in file("jira-client"))
+  .settings(
+    organization := "com.allantl",
+    name := "atlassian-connect-jira-client",
+    libraryDependencies ++= Seq(
+      "com.allantl" %% "jira4s" % "0.0.1-SNAPSHOT"
+    ),
+    scalacOptions ++= compilerOptions
+  )
+  .dependsOn(ac_config)
+
 lazy val root = (project in file("."))
   .settings(
     organization := "com.allantl",
@@ -77,12 +95,13 @@ lazy val root = (project in file("."))
 
       "io.toolsplus" %% "atlassian-jwt-generators" % AtlassianJwtVersion,
       "io.toolsplus" %% "atlassian-jwt-core" % AtlassianJwtVersion,
-      "io.chrisdavenport" %% "log4cats-core"  % "0.0.7",
-      "com.allantl" %% "jira4s" % "0.0.1-SNAPSHOT"
+      "io.chrisdavenport" %% "log4cats-core"  % "0.0.7"
     ),
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % Specs2Version % "test",
       "org.specs2" %% "specs2-scalacheck" % Specs2Version % "test",
     ),
-    scalacOptions ++= compilerOptions,
+    scalacOptions ++= compilerOptions
   )
+  .dependsOn(ac_config)
+  .aggregate(jira_client, ac_config)

@@ -1,3 +1,3 @@
-package com.allantl.atlassian.connect.http4s.configs
+package com.allantl.atlassian.connect.config
 
 case class AddOnProperties(key: String, appKey: String, baseUrl: String)

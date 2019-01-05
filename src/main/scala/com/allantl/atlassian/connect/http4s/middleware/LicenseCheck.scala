@@ -3,7 +3,7 @@ package com.allantl.atlassian.connect.http4s.middleware
 import cats.Functor
 import org.http4s._
 import cats.data.Kleisli
-import com.allantl.atlassian.connect.http4s.configs.AtlassianConnectConfig
+import com.allantl.atlassian.connect.config.AtlassianConnectConfig
 
 class LicenseCheck[F[_]: Functor](ifUnlicensed: HttpService[F])(
     implicit acConfig: AtlassianConnectConfig
