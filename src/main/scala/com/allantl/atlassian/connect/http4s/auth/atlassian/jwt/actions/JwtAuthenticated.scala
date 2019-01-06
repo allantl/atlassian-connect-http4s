@@ -3,6 +3,7 @@ package com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.actions
 import cats.Monad
 import cats.data.EitherT
 import cats.syntax.flatMap._
+import cats.syntax.applicative._
 import com.allantl.atlassian.connect.http4s.auth.errors.JwtNotFound
 import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.{JwtExtractor, JwtValidator}
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHostUser
@@ -22,7 +23,7 @@ object JwtAuthenticated {
 
     result.value.flatMap {
       case Left(e) =>
-        Response[F](Status.Unauthorized).withBody(s"JWT validation failed: ${e.message}")
+        Response[F](Status.Unauthorized).withEntity(s"JWT validation failed: ${e.message}").pure[F]
       case Right(r) => r
     }
   }

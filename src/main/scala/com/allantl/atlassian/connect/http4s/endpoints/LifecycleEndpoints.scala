@@ -1,7 +1,7 @@
 package com.allantl.atlassian.connect.http4s.endpoints
 
 import cats.effect.Effect
-import org.http4s.{EntityDecoder, HttpService}
+import org.http4s.{EntityDecoder, HttpRoutes}
 import org.http4s.dsl.Http4sDsl
 import com.allantl.atlassian.connect.http4s.domain.lifecycle.{InstallEvent, UninstallEvent}
 import cats.syntax.functor._
@@ -17,8 +17,8 @@ class LifecycleEndpoints[F[_]: Effect: JwtValidator](lifecycleService: Lifecycle
   implicit val installedDecoder: EntityDecoder[F, InstallEvent] = jsonOf[F, InstallEvent]
   implicit val uninstalledDecoder: EntityDecoder[F, UninstallEvent] = jsonOf[F, UninstallEvent]
 
-  val endpoints: HttpService[F] =
-    HttpService[F] {
+  val endpoints: HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case req @ POST -> Root / "installed" =>
         for {
           installEvent <- req.as[InstallEvent]

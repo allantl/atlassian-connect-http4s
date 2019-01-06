@@ -1,11 +1,11 @@
-val Http4sVersion = "0.18.21"
+val Http4sVersion = "0.20.0-M4"
 val Specs2Version = "4.3.5"
 val LogbackVersion = "1.2.3"
-val CirceVersion = "0.10.1"
+val CirceVersion = "0.11.0"
 val AtlassianJwtVersion = "0.1.5"
 
 val ScalaVersion = "2.12.6"
-val DoobieVersion = "0.5.3"
+val DoobieVersion = "0.6.0"
 
 val compilerOptions = Seq(
   "-deprecation",                      // Emit warning and location for usages of deprecated APIs.
