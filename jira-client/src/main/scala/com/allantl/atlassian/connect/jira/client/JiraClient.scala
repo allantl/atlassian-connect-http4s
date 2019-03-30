@@ -16,5 +16,6 @@ object JiraClient {
       AcJwtConfig(
         addOnProperties.key,
         acConfig.jwtExpirationTimeInSeconds
-      ))
+      )
+    )
 }

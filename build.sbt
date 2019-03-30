@@ -1,7 +1,11 @@
-val Http4sVersion = "0.20.0-M4"
-val Specs2Version = "4.3.5"
+organization in ThisBuild := "com.github.allantl"
+homepage in ThisBuild := Some(url("https://github.com/allantl/atlassian-connect-http4s"))
+licenses in ThisBuild := List("Apache-2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
+
+val Http4sVersion = "0.20.0-M7"
+val Specs2Version = "4.5.1"
 val LogbackVersion = "1.2.3"
-val CirceVersion = "0.11.0"
+val CirceVersion = "0.11.1"
 val AtlassianJwtVersion = "0.1.5"
 
 val ScalaVersion = "2.12.6"
@@ -57,17 +61,17 @@ val compilerOptions = Seq(
 
 lazy val ac_config = (project in file("ac-config"))
   .settings(
-    organization := "com.allantl",
     name := "atlassian-connect-config",
     scalacOptions ++= compilerOptions
   )
 
+val Jira4sVersion = "0.0.1"
+
 lazy val jira_client = (project in file("jira-client"))
   .settings(
-    organization := "com.allantl",
     name := "atlassian-connect-jira-client",
     libraryDependencies ++= Seq(
-      "com.allantl" %% "jira4s" % "0.0.1-SNAPSHOT"
+      "com.github.allantl" %% "jira4s" % Jira4sVersion
     ),
     scalacOptions ++= compilerOptions
   )
@@ -75,7 +79,6 @@ lazy val jira_client = (project in file("jira-client"))
 
 lazy val root = (project in file("."))
   .settings(
-    organization := "com.allantl",
     name := "atlassian-connect-http4s",
     scalaVersion := ScalaVersion,
     libraryDependencies ++= Seq(
@@ -101,7 +104,8 @@ lazy val root = (project in file("."))
       "org.specs2" %% "specs2-core" % Specs2Version % "test",
       "org.specs2" %% "specs2-scalacheck" % Specs2Version % "test",
     ),
-    scalacOptions ++= compilerOptions
+    scalacOptions ++= compilerOptions,
+    addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.9")
   )
   .dependsOn(ac_config)
   .aggregate(jira_client, ac_config)

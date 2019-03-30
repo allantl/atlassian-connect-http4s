@@ -1,11 +1,11 @@
 package com.allantl.atlassian.connect.http4s.middleware
 
 import cats.Functor
-import org.http4s._
-import cats.data.Kleisli
+import cats.data.{Kleisli, OptionT}
 import com.allantl.atlassian.connect.config.AtlassianConnectConfig
+import org.http4s._
 
-class LicenseCheck[F[_]: Functor](ifUnlicensed: HttpRoutes[F])(
+final class LicenseCheck[F[_]: Functor](ifUnlicensed: Request[F] => F[Response[F]])(
     implicit acConfig: AtlassianConnectConfig
 ) {
 
@@ -14,7 +14,7 @@ class LicenseCheck[F[_]: Functor](ifUnlicensed: HttpRoutes[F])(
       (acConfig.licenseCheckEnabled, req.params.get("lic")) match {
         case (false, _) => service(req)
         case (true, Some("active")) => service(req)
-        case _ => ifUnlicensed(req)
+        case _ => OptionT.liftF(ifUnlicensed(req))
       }
     }
 }

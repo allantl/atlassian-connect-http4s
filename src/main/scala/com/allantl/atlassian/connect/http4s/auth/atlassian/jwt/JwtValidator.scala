@@ -12,12 +12,12 @@ import io.chrisdavenport.log4cats.Logger
 import io.circe.parser._
 import io.toolsplus.atlassian.jwt.Jwt
 
-class JwtValidator[F[_]: Monad: Logger: AtlassianHostRepositoryAlgebra]() {
+final class JwtValidator[F[_]: Monad: Logger: AtlassianHostRepositoryAlgebra]() {
 
   def authenticate(
       jwtCredentials: JwtCredentials
-  ): EitherT[F, JwtAuthenticationError, AtlassianHostUser] =
-    for {
+  ): F[Either[JwtAuthenticationError, AtlassianHostUser]] = {
+    val ahuT = for {
       jwt <- EitherT(parseJwt(jwtCredentials.rawJwt))
       clientKey <- extractClientKey(jwt).toEitherT[F]
       host <- EitherT(findInstalledHost(clientKey))
@@ -25,6 +25,9 @@ class JwtValidator[F[_]: Monad: Logger: AtlassianHostRepositoryAlgebra]() {
       maybeRawUserCtx = Option(verifiedToken.claims.getClaims.get("context")).map(_.toString)
       acCtx = maybeRawUserCtx.flatMap(parse(_).right.flatMap(_.as[AtlassianConnectContext]).toOption)
     } yield AtlassianHostUser(host, acCtx.map(_.user))
+
+    ahuT.value
+  }
 
   private def extractClientKey(jwt: Jwt): Either[JwtAuthenticationError, String] = {
     val unverifiedClaims = jwt.claims
