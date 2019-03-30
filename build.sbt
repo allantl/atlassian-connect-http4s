@@ -103,6 +103,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % Specs2Version % "test",
       "org.specs2" %% "specs2-scalacheck" % Specs2Version % "test",
+      "com.github.allantl" %% "jira4s" % Jira4sVersion % "test"
     ),
     scalacOptions ++= compilerOptions,
     addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.9")

@@ -1,10 +1,10 @@
 package com.allantl.atlassian.connect.http4s.auth.atlassian.jwt
 
 import cats.Id
+import com.allantl.atlassian.connect.config.AddOnProperties
 import com.allantl.atlassian.connect.http4s.AcHttp4sTest
 import com.allantl.atlassian.connect.http4s.auth.domain.{CanonicalHttp4sHttpRequest, JwtCredentials}
 import com.allantl.atlassian.connect.http4s.auth.errors.{InvalidJwt, JwtAuthenticationError, UnknownIssuer}
-import com.allantl.atlassian.connect.http4s.configs.AddOnProperties
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHost
 import com.allantl.atlassian.connect.http4s.mock.logging.NoLogging
 import com.allantl.atlassian.connect.http4s.mock.repository.{NotFoundHostRepository, TestAtlassianHostRepository}
@@ -16,8 +16,7 @@ import org.specs2.matcher.ThrownMessages
 
 class JwtValidatorSpec extends AcHttp4sTest with ThrownMessages {
 
-  implicit val addOnProps =
-    AddOnProperties("com.allantl.http4s", "AcHttp4s", "https://com.allantl.http4s")
+  implicit val addOnProps = AddOnProperties("com.allantl.http4s", "AcHttp4s", "https://com.allantl.http4s")
   implicit val acConfig = AcJwtConfig(addOnProps.key, 5L)
   implicit val logging = NoLogging[Id]()
 
@@ -56,7 +55,7 @@ class JwtValidatorSpec extends AcHttp4sTest with ThrownMessages {
           implicit val repo = new TestAtlassianHostRepository[Id]()
           val jwtAuthenticator = new JwtValidator[Id]()
           val invalid = jwtCredentials.copy(rawJwt = "invalidJwt")
-          jwtAuthenticator.authenticate(invalid).value must beLeft
+          jwtAuthenticator.authenticate(invalid) must beLeft
         }
     }
 
@@ -65,7 +64,7 @@ class JwtValidatorSpec extends AcHttp4sTest with ThrownMessages {
         withJwtCredentials { jwtCredentials =>
           implicit val repo = new NotFoundHostRepository[Id]()
           val jwtAuthenticator = new JwtValidator[Id]()
-          jwtAuthenticator.authenticate(jwtCredentials).value must beLeft(
+          jwtAuthenticator.authenticate(jwtCredentials) must beLeft(
             UnknownIssuer(addOnProps.key): JwtAuthenticationError)
         }
     }
@@ -76,7 +75,7 @@ class JwtValidatorSpec extends AcHttp4sTest with ThrownMessages {
         implicit val requestUri: Option[RequestUri] = Some(RequestUri(s"${host.baseUrl}/test/url"))
         val jwtAuthenticator = new JwtValidator[Id]()
         withJwtCredentials { jwtCredentials =>
-          jwtAuthenticator.authenticate(jwtCredentials).value must beLeft(haveClass[InvalidJwt])
+          jwtAuthenticator.authenticate(jwtCredentials) must beLeft(haveClass[InvalidJwt])
         }
     }
 
@@ -85,7 +84,7 @@ class JwtValidatorSpec extends AcHttp4sTest with ThrownMessages {
       implicit val repo = new TestAtlassianHostRepository[Id]()
       val jwtAuthenticator = new JwtValidator[Id]()
       withJwtCredentials { jwtCredentials =>
-        jwtAuthenticator.authenticate(jwtCredentials).value must beLeft(haveClass[InvalidJwt])
+        jwtAuthenticator.authenticate(jwtCredentials) must beLeft(haveClass[InvalidJwt])
       }(host, config)
     }
 
@@ -94,9 +93,8 @@ class JwtValidatorSpec extends AcHttp4sTest with ThrownMessages {
         implicit val repo = new TestAtlassianHostRepository[Id]()
         val jwtAuthenticator = new JwtValidator[Id]()
         withJwtCredentials { jwtCredentials =>
-          jwtAuthenticator.authenticate(jwtCredentials).value must beRight
+          jwtAuthenticator.authenticate(jwtCredentials) must beRight
         }
     }
   }
-
 }
