@@ -7,13 +7,12 @@ import com.allantl.atlassian.connect.http4s.domain.lifecycle.{InstallEvent, Unin
 import cats.syntax.functor._
 import cats.syntax.flatMap._
 import com.allantl.atlassian.connect.http4s.auth.{AcHttpRoutes, asAcAuth}
-import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.JwtValidator
 import com.allantl.atlassian.connect.http4s.services.lifecycle.LifecycleService
 import org.http4s.circe._
 import cats.syntax.semigroupk._
-import com.allantl.atlassian.connect.http4s.auth.middleware.AcHttpMiddleware
+import com.allantl.atlassian.connect.http4s.auth.middleware.AcHttpService
 
-class LifecycleEndpoints[F[_]: Effect: JwtValidator](lifecycleService: LifecycleService[F])
+class LifecycleEndpoints[F[_]: Effect](acHttpService: AcHttpService[F], lifecycleService: LifecycleService[F])
     extends Http4sDsl[F] {
 
   implicit val installedDecoder: EntityDecoder[F, InstallEvent] = jsonOf[F, InstallEvent]
@@ -41,8 +40,6 @@ class LifecycleEndpoints[F[_]: Effect: JwtValidator](lifecycleService: Lifecycle
         } yield ok
     }
 
-  def endpoints: HttpRoutes[F] = {
-    val middleware = AcHttpMiddleware(implicitly[JwtValidator[F]])
-    middleware(authEndpoints) <+> noAuthEndpoints
-  }
+  val endpoints: HttpRoutes[F] =
+    acHttpService.liftRoutes(authEndpoints) <+> noAuthEndpoints
 }

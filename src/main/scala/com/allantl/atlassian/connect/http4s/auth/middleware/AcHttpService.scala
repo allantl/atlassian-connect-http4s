@@ -8,7 +8,7 @@ import org.http4s.{HttpRoutes, Request, Response, Status}
 import cats.syntax.applicative._
 import com.allantl.atlassian.connect.http4s.auth.domain.AcJwtAuthenticatedRequest
 
-sealed abstract class AcHttpMiddlewareHandler[F[_]](jwtValidator: JwtValidator[F])(
+sealed abstract class AcHttpService[F[_]](jwtValidator: JwtValidator[F])(
     implicit F: MonadError[F, Throwable],
     ME: MonadError[Kleisli[OptionT[F, ?], Request[F], ?], Throwable]
 ) {
@@ -16,7 +16,7 @@ sealed abstract class AcHttpMiddlewareHandler[F[_]](jwtValidator: JwtValidator[F
   private val defaultUnauthorized: Request[F] => F[Response[F]] =
     _ => Response[F](Status.Unauthorized).pure[F]
 
-  def apply(
+  def liftRoutes(
       acHttpRoutes: AcHttpRoutes[F],
       ifUnauthorized: Request[F] => F[Response[F]] = defaultUnauthorized
   ): HttpRoutes[F] =
@@ -44,11 +44,11 @@ sealed abstract class AcHttpMiddlewareHandler[F[_]](jwtValidator: JwtValidator[F
     } yield AcJwtAuthenticatedRequest[F](req, ahu)
 }
 
-object AcHttpMiddleware {
+object AcHttpService {
 
   def apply[F[_]](jwtValidator: JwtValidator[F])(
       implicit F: MonadError[F, Throwable],
       ME: MonadError[Kleisli[OptionT[F, ?], Request[F], ?], Throwable]
-  ): AcHttpMiddlewareHandler[F] =
-    new AcHttpMiddlewareHandler[F](jwtValidator) {}
+  ): AcHttpService[F] =
+    new AcHttpService[F](jwtValidator) {}
 }
