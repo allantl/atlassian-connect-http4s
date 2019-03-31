@@ -59,23 +59,7 @@ val compilerOptions = Seq(
   "-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
 )
 
-lazy val ac_config = (project in file("ac-config"))
-  .settings(
-    name := "atlassian-connect-config",
-    scalacOptions ++= compilerOptions
-  )
-
 val Jira4sVersion = "0.0.1"
-
-lazy val jira_client = (project in file("jira-client"))
-  .settings(
-    name := "atlassian-connect-jira-client",
-    libraryDependencies ++= Seq(
-      "com.github.allantl" %% "jira4s" % Jira4sVersion
-    ),
-    scalacOptions ++= compilerOptions
-  )
-  .dependsOn(ac_config)
 
 lazy val root = (project in file("."))
   .settings(
@@ -108,5 +92,3 @@ lazy val root = (project in file("."))
     scalacOptions ++= compilerOptions,
     addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.9")
   )
-  .dependsOn(ac_config)
-  .aggregate(jira_client, ac_config)

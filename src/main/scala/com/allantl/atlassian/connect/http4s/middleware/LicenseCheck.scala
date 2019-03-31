@@ -2,11 +2,11 @@ package com.allantl.atlassian.connect.http4s.middleware
 
 import cats.Functor
 import cats.data.{Kleisli, OptionT}
-import com.allantl.atlassian.connect.config.AtlassianConnectConfig
+import com.allantl.atlassian.connect.http4s.domain.AtlassianConnectConfig
 import org.http4s._
 
 final class LicenseCheck[F[_]: Functor](ifUnlicensed: Request[F] => F[Response[F]])(
-    implicit acConfig: AtlassianConnectConfig
+  implicit acConfig: AtlassianConnectConfig
 ) {
 
   def apply(service: HttpRoutes[F]): HttpRoutes[F] =

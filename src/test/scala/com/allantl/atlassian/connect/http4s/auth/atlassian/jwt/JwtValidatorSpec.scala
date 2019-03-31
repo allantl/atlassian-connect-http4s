@@ -1,7 +1,6 @@
 package com.allantl.atlassian.connect.http4s.auth.atlassian.jwt
 
 import cats.Id
-import com.allantl.atlassian.connect.config.AddOnProperties
 import com.allantl.atlassian.connect.http4s.AcHttp4sTest
 import com.allantl.atlassian.connect.http4s.auth.domain.{CanonicalHttp4sHttpRequest, JwtCredentials}
 import com.allantl.atlassian.connect.http4s.auth.errors.{InvalidJwt, JwtAuthenticationError, UnknownIssuer}
@@ -16,7 +15,9 @@ import org.specs2.matcher.ThrownMessages
 
 class JwtValidatorSpec extends AcHttp4sTest with ThrownMessages {
 
-  implicit val addOnProps = AddOnProperties("com.allantl.http4s", "AcHttp4s", "https://com.allantl.http4s")
+  case class AddOnProperties(key: String, baseUrl: String)
+
+  implicit val addOnProps = AddOnProperties("com.allantl.http4s", "https://com.allantl.http4s")
   implicit val acConfig = AcJwtConfig(addOnProps.key, 5L)
   implicit val logging = NoLogging[Id]()
 
