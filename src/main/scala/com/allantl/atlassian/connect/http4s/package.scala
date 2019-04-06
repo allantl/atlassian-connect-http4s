@@ -1,14 +1,14 @@
-package com.allantl.atlassian.connect.http4s
+package com.allantl.atlassian.connect
 
 import cats.data.{Kleisli, OptionT}
 import cats.effect.Sync
-import cats.implicits._
 import com.allantl.atlassian.connect.http4s.auth.domain.AcJwtAuthenticatedRequest
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHostUser
-import org.http4s.server.Middleware
 import org.http4s.{Request, Response}
+import org.http4s.server.Middleware
+import cats.implicits._
 
-package object auth {
+package object http4s {
 
   type AcHttpRoutes[F[_]] = Kleisli[OptionT[F, ?], AcJwtAuthenticatedRequest[F], Response[F]]
   type AcHttpMiddleware[F[_]] =

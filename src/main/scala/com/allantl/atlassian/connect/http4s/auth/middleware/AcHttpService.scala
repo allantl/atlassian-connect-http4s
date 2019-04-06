@@ -2,7 +2,7 @@ package com.allantl.atlassian.connect.http4s.auth.middleware
 
 import cats.MonadError
 import cats.data.{EitherT, Kleisli, OptionT}
-import com.allantl.atlassian.connect.http4s.auth.{AcHttpMiddleware, AcHttpRoutes}
+import com.allantl.atlassian.connect.http4s._
 import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.{JwtExtractor, JwtValidator}
 import org.http4s.{HttpRoutes, Request, Response, Status}
 import cats.syntax.applicative._
