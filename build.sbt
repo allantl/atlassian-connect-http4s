@@ -2,7 +2,7 @@ organization in ThisBuild := "com.github.allantl"
 homepage in ThisBuild := Some(url("https://github.com/allantl/atlassian-connect-http4s"))
 licenses in ThisBuild := List("Apache-2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
 
-val Http4sVersion = "0.20.0-M7"
+val Http4sVersion = "0.20.0"
 val Specs2Version = "4.5.1"
 val LogbackVersion = "1.2.3"
 val CirceVersion = "0.11.1"
