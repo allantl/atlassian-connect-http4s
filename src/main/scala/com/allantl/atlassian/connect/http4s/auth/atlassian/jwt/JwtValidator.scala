@@ -8,11 +8,10 @@ import com.allantl.atlassian.connect.http4s.auth.domain.JwtCredentials
 import com.allantl.atlassian.connect.http4s.auth.errors.{JwtAuthenticationError, JwtBadCredentials}
 import com.allantl.atlassian.connect.http4s.domain.{AtlassianConnectContext, AtlassianHostUser}
 import com.allantl.atlassian.connect.http4s.repository.algebra.AtlassianHostRepositoryAlgebra
-import io.chrisdavenport.log4cats.Logger
 import io.circe.parser._
 import io.toolsplus.atlassian.jwt.Jwt
 
-final class JwtValidator[F[_]: Monad: Logger: AtlassianHostRepositoryAlgebra]() {
+final class JwtValidator[F[_]: Monad: AtlassianHostRepositoryAlgebra]() {
 
   def authenticate(
       jwtCredentials: JwtCredentials

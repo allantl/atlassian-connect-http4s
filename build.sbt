@@ -4,12 +4,10 @@ licenses in ThisBuild := List("Apache-2.0" -> url("http://opensource.org/license
 
 val Http4sVersion = "0.20.0"
 val Specs2Version = "4.5.1"
-val LogbackVersion = "1.2.3"
 val CirceVersion = "0.11.1"
 val AtlassianJwtVersion = "0.1.5"
 
 val ScalaVersion = "2.12.6"
-val DoobieVersion = "0.6.0"
 
 val compilerOptions = Seq(
   "-deprecation",                      // Emit warning and location for usages of deprecated APIs.
@@ -67,22 +65,15 @@ lazy val root = (project in file("."))
     scalaVersion := ScalaVersion,
     libraryDependencies ++= Seq(
       "org.http4s" %% "http4s-blaze-server" % Http4sVersion,
-      "org.http4s" %% "http4s-blaze-client" % Http4sVersion,
       "org.http4s" %% "http4s-circe" % Http4sVersion,
       "org.http4s" %% "http4s-dsl" % Http4sVersion,
-
-      "org.tpolecat" %% "doobie-core" % DoobieVersion,
-      "org.tpolecat" %% "doobie-postgres"  % DoobieVersion,
-
-      "ch.qos.logback" % "logback-classic" % LogbackVersion,
 
       "io.circe" %% "circe-core" % CirceVersion,
       "io.circe" %% "circe-generic" % CirceVersion,
       "io.circe" %% "circe-parser" % CirceVersion,
 
       "io.toolsplus" %% "atlassian-jwt-generators" % AtlassianJwtVersion,
-      "io.toolsplus" %% "atlassian-jwt-core" % AtlassianJwtVersion,
-      "io.chrisdavenport" %% "log4cats-core"  % "0.0.7"
+      "io.toolsplus" %% "atlassian-jwt-core" % AtlassianJwtVersion
     ),
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % Specs2Version % "test",

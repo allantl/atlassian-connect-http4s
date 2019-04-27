@@ -8,52 +8,38 @@ import com.allantl.atlassian.connect.http4s.auth.errors.{
   UnknownIssuer
 }
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHost
-import io.chrisdavenport.log4cats.Logger
 import io.toolsplus.atlassian.jwt.{HttpRequestCanonicalizer, Jwt, JwtParser, JwtReader}
-import cats.syntax.either._
-import cats.syntax.applicative._
-import cats.syntax.flatMap._
-import cats.syntax.functor._
-import cats.syntax.apply._
+import cats.implicits._
 import com.allantl.atlassian.connect.http4s.repository.algebra.AtlassianHostRepositoryAlgebra
 
 object JwtAuthenticatorUtils {
 
-  def parseJwt[F[_]: Monad: Logger](rawJwt: String): F[Either[JwtAuthenticationError, Jwt]] =
+  def parseJwt[F[_]: Monad](rawJwt: String): F[Either[JwtAuthenticationError, Jwt]] =
     for {
       jwtOrErr <- JwtParser.parse(rawJwt).pure[F]
       res <- jwtOrErr.fold(
-        e =>
-          Logger[F]
-            .error(s"Parsing of JWT failed: $e") *> InvalidJwt(e.getMessage()).asLeft[Jwt].pure[F],
+        e => InvalidJwt(e.getMessage()).asLeft[Jwt].pure[F],
         jwt => jwt.asRight[JwtAuthenticationError].pure[F]
       )
     } yield res
 
-  def findInstalledHost[F[_]: Monad: Logger](clientKey: String)(
+  def findInstalledHost[F[_]: Monad](clientKey: String)(
       implicit hostRepo: AtlassianHostRepositoryAlgebra[F])
     : F[Either[JwtAuthenticationError, AtlassianHost]] =
     hostRepo
       .findByClientKey(clientKey)
       .flatMap {
         case Some(host) => host.asRight[JwtAuthenticationError].pure[F]
-        case None =>
-          val err: Either[JwtAuthenticationError, AtlassianHost] =
-            UnknownIssuer(clientKey).asLeft[AtlassianHost]
-          Logger[F].error(
-            s"Could not find an installed host for the provided client key: $clientKey") *>
-            err.pure[F]
+        case None => UnknownIssuer(clientKey).asLeft[AtlassianHost].leftWiden[JwtAuthenticationError].pure[F]
       }
 
-  def verifyJwt[F[_]: Applicative: Logger](
+  def verifyJwt[F[_]: Applicative](
       jwtCredentials: JwtCredentials,
       host: AtlassianHost): F[Either[JwtAuthenticationError, Jwt]] = {
     val qsh =
       HttpRequestCanonicalizer.computeCanonicalRequestHash(jwtCredentials.canonicalHttpRequest)
     JwtReader(host.sharedSecret).readAndVerify(jwtCredentials.rawJwt, qsh) match {
-      case Left(e) =>
-        val err: Either[JwtAuthenticationError, Jwt] = InvalidJwt(e.getMessage).asLeft
-        Logger[F].error(s"Reading and validating of JWT failed: $e") *> err.pure[F]
+      case Left(e) => InvalidJwt(e.getMessage).asLeft[Jwt].leftWiden[JwtAuthenticationError].pure[F]
       case Right(jwt) => jwt.asRight[JwtAuthenticationError].pure[F]
     }
   }

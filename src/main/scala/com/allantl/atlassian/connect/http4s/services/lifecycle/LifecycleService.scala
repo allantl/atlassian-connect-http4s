@@ -10,9 +10,8 @@ import com.allantl.atlassian.connect.http4s.domain.AtlassianHost.newInstallation
 import com.allantl.atlassian.connect.http4s.domain.{HostError, HostNotFound}
 import com.allantl.atlassian.connect.http4s.domain.lifecycle.{InstallEvent, UninstallEvent}
 import com.allantl.atlassian.connect.http4s.repository.algebra.AtlassianHostRepositoryAlgebra
-import io.chrisdavenport.log4cats.Logger
 
-class LifecycleService[F[_]: Monad: Logger](hostRepo: AtlassianHostRepositoryAlgebra[F]) {
+class LifecycleService[F[_]: Monad](hostRepo: AtlassianHostRepositoryAlgebra[F], infoLogger: String => F[Unit]) {
 
   def install(installEvent: InstallEvent): F[Unit] =
     for {
@@ -21,10 +20,10 @@ class LifecycleService[F[_]: Monad: Logger](hostRepo: AtlassianHostRepositoryAlg
         case Some(existing) =>
           val logInstallEvent =
             if (existing.baseUrl != installEvent.baseUrl) {
-              Logger[F].warn(
+              infoLogger(
                 s"Updating baseUrl from ${existing.baseUrl} to ${installEvent.baseUrl} for host $existing")
             } else {
-              Logger[F].info(
+              infoLogger(
                 s"Reinstalling addon with baseUrl ${existing.baseUrl} for host $existing")
             }
           logInstallEvent *> newInstallationRecord(installEvent).pure[F]
@@ -32,7 +31,7 @@ class LifecycleService[F[_]: Monad: Logger](hostRepo: AtlassianHostRepositoryAlg
           newInstallationRecord(installEvent).pure[F]
       }
       host <- hostRepo.save(record)
-      _ <- Logger[F].info(s"Successfully installed host $host from payload: $installEvent")
+      _ <- infoLogger(s"Successfully installed host $host from payload: $installEvent")
     } yield ()
 
   def uninstall(uninstallEvent: UninstallEvent): EitherT[F, HostError, Unit] =
@@ -42,7 +41,13 @@ class LifecycleService[F[_]: Monad: Logger](hostRepo: AtlassianHostRepositoryAlg
       )
       _ <- EitherT.liftF(hostRepo.save(host.copy(installed = false)))
       _ <- EitherT.liftF(
-        Logger[F].info(s"Successfully uninstalled host $host from payload: $uninstallEvent")
+        infoLogger(s"Successfully uninstalled host $host from payload: $uninstallEvent")
       )
     } yield ()
+}
+
+object LifecycleService {
+
+  def apply[F[_]: Monad](hostRepo: AtlassianHostRepositoryAlgebra[F], infoLogger: String => F[Unit]) =
+    new LifecycleService[F](hostRepo, infoLogger)
 }
