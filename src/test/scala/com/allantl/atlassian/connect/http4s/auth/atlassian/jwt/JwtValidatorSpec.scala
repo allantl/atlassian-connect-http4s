@@ -5,7 +5,6 @@ import com.allantl.atlassian.connect.http4s.AcHttp4sTest
 import com.allantl.atlassian.connect.http4s.auth.domain.{CanonicalHttp4sHttpRequest, JwtCredentials}
 import com.allantl.atlassian.connect.http4s.auth.errors.{InvalidJwt, JwtAuthenticationError, UnknownIssuer}
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHost
-import com.allantl.atlassian.connect.http4s.mock.logging.NoLogging
 import com.allantl.atlassian.connect.http4s.mock.repository.{NotFoundHostRepository, TestAtlassianHostRepository}
 import com.allantl.jira4s.auth.{AcJwtConfig, AuthContext}
 import com.allantl.jira4s.auth.jwt.JwtGenerator
@@ -19,7 +18,6 @@ class JwtValidatorSpec extends AcHttp4sTest with ThrownMessages {
 
   implicit val addOnProps = AddOnProperties("com.allantl.http4s", "https://com.allantl.http4s")
   implicit val acConfig = AcJwtConfig(addOnProps.key, 5L)
-  implicit val logging = NoLogging[Id]()
 
   case class RequestUri(value: String)
 
