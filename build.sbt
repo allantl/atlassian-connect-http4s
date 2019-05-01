@@ -1,3 +1,6 @@
+import ReleaseTransformations._
+
+name := "atlassian-connect-http4s"
 organization in ThisBuild := "com.github.allantl"
 homepage in ThisBuild := Some(url("https://github.com/allantl/atlassian-connect-http4s"))
 licenses in ThisBuild := List("Apache-2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
@@ -57,11 +60,54 @@ val compilerOptions = Seq(
   "-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
 )
 
+lazy val publishSettings = Seq(
+  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+  publishMavenStyle := true,
+  publishArtifact in Test := false,
+  pomIncludeRepository := { _ =>
+    false
+  },
+  publishTo := {
+    val nexus = "https://oss.sonatype.org/"
+    if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+    else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+  },
+  autoAPIMappings := true,
+  scmInfo := Some(
+    ScmInfo(
+      url("https://github.com/allantl/atlassian-connect-http4s"),
+      "scm:git:git@github.com:allantl/atlassian-connect-http4s.git"
+    )
+  ),
+  developers := List(
+    Developer(
+      "allantl",
+      "Allan Timothy Leong",
+      "allan.timothy.leong@gmail.com",
+      url("https://github.com/allantl")
+    )
+  )
+)
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommand("publishSigned"),
+  setNextVersion,
+  commitNextVersion,
+  releaseStepCommand("sonatypeReleaseAll"),
+  pushChanges
+)
+
 val Jira4sVersion = "0.0.1"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "atlassian-connect-http4s",
     scalaVersion := ScalaVersion,
     libraryDependencies ++= Seq(
       "org.http4s" %% "http4s-blaze-server" % Http4sVersion,
@@ -83,3 +129,4 @@ lazy val root = (project in file("."))
     scalacOptions ++= compilerOptions,
     addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.9")
   )
+  .settings(publishSettings)
