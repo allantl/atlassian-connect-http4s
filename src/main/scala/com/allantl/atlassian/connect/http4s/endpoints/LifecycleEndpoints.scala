@@ -35,7 +35,7 @@ sealed abstract class LifecycleEndpoints[F[_]: ConcurrentEffect](
         } yield ok
 
       case req @ POST -> Root / "uninstalled" =>
-        jwtAuthenticated(req) { implicit ahu =>
+        jwtAuthenticated(req) { _ =>
           for {
             uninstallEvent <- req.as[UninstallEvent]
             errOrSuccess <- lifecycleService.uninstall(uninstallEvent).value
