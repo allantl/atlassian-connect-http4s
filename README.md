@@ -1,7 +1,7 @@
 Atlassian Connect Scala for Http4s
 ==================================
 
-
+[![Build Status](https://travis-ci.org/allantl/atlassian-connect-http4s.svg?branch=master)](https://travis-ci.org/allantl/atlassian-connect-http4s)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.allantl/atlassian-connect-http4s_2.12.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.allantl/atlassian-connect-http4s_2.12)
 
 This library serves as a starter/library to develop Atlassian Connect Jira and Confluence add on.
