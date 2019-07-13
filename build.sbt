@@ -5,12 +5,12 @@ organization in ThisBuild := "com.github.allantl"
 homepage in ThisBuild := Some(url("https://github.com/allantl/atlassian-connect-http4s"))
 licenses in ThisBuild := List("Apache-2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
 
-val Http4sVersion = "0.20.0"
+val Http4sVersion = "0.20.6"
 val Specs2Version = "4.5.1"
 val CirceVersion = "0.11.1"
-val AtlassianJwtVersion = "0.1.5"
+val AtlassianJwtVersion = "0.1.7"
 
-val ScalaVersion = "2.12.6"
+val ScalaVersion = "2.12.8"
 
 val compilerOptions = Seq(
   "-deprecation",                      // Emit warning and location for usages of deprecated APIs.
@@ -104,7 +104,7 @@ releaseProcess := Seq[ReleaseStep](
   pushChanges
 )
 
-val Jira4sVersion = "0.0.1"
+val Jira4sVersion = "0.2.0"
 
 lazy val root = (project in file("."))
   .settings(

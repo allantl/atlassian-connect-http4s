@@ -10,7 +10,11 @@ import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.{JwtExtractor, Jw
 import com.allantl.atlassian.connect.http4s.auth.errors.JwtNotFound
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHostUser
 import com.allantl.atlassian.connect.http4s.domain.lifecycle.{InstallEvent, UninstallEvent}
-import com.allantl.atlassian.connect.http4s.services.lifecycle.{LifecycleEventHandler, LifecycleService, NoOpLifecycleEventHandler}
+import com.allantl.atlassian.connect.http4s.services.lifecycle.{
+  LifecycleEventHandler,
+  LifecycleService,
+  NoOpLifecycleEventHandler
+}
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityDecoder, HttpRoutes, Request, Response, Status}
