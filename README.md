@@ -127,6 +127,10 @@ object Main extends IOApp {
 }
 ~~~
 
+## Providing your own LifecycleService
+
+You can take a look at the implementation [here](src/main/scala/com/allantl/atlassian/connect/http4s/services/lifecycle/LifecycleService.scala) and roll your own service instead.
+
 ## Composing Routes
 
 `AcHttpRoutes` can be composed with other `AcHttpRoutes`.
@@ -172,3 +176,21 @@ under Retrieving context using AP.context.getToken().
 ## Jira Client
 
 If you need jira client, its available [here](https://github.com/allantl/jira4s).
+
+Interop with this library:
+
+~~~ scala
+object JiraClient {
+
+  type JiraClient[R[_]] = JiraMultiTenantClient[R]
+
+  def apply[R[_], S](acJwtConfig: AcJwtConfig)(
+    implicit sttpBackend: SttpBackend[R, S]
+  ): JiraMultiTenantClient[R] =
+    JiraMultiTenantClient(acJwtConfig)
+}
+~~~
+
+## ScalaJs Atlaskit components
+
+For those who is developing with scalajs-react and is looking for atlaskit components, please take a look [here](https://github.com/allantl/scalajs-atlaskit)
