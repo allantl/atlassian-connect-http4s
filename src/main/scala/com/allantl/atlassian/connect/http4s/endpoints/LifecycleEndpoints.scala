@@ -7,7 +7,7 @@ import cats.syntax.applicative._
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.{JwtExtractor, JwtValidator}
-import com.allantl.atlassian.connect.http4s.auth.errors.JwtNotFound
+import com.allantl.atlassian.connect.http4s.auth.errors.{JwtAuthenticationError, JwtNotFound}
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHostUser
 import com.allantl.atlassian.connect.http4s.domain.lifecycle.{InstallEvent, UninstallEvent}
 import com.allantl.atlassian.connect.http4s.services.lifecycle.{
@@ -31,37 +31,48 @@ sealed abstract class LifecycleEndpoints[F[_]: ConcurrentEffect](
   val endpoints: HttpRoutes[F] =
     HttpRoutes.of[F] {
       case req @ POST -> Root / "installed" =>
-        for {
-          installEvent <- req.as[InstallEvent]
-          _ <- lifecycleService.install(installEvent)
-          _ <- lifecycleEventHandler.afterInstall().start.void
-          ok <- Ok()
-        } yield ok
+        authenticateJwt(req).flatMap {
+          case Left(_) =>
+            for {
+              installEvent <- req.as[InstallEvent]
+              _ <- lifecycleService.install(installEvent)
+              _ <- lifecycleEventHandler.afterInstall().start.void
+              ok <- Ok()
+            } yield ok
+
+          case Right(ahu) =>
+            for {
+              installEvent <- req.as[InstallEvent]
+              _ <- lifecycleService.reinstall(installEvent, ahu)
+              _ <- lifecycleEventHandler.afterInstall().start.void
+              ok <- Ok()
+            } yield ok
+        }
 
       case req @ POST -> Root / "uninstalled" =>
-        jwtAuthenticated(req) { _ =>
-          for {
-            uninstallEvent <- req.as[UninstallEvent]
-            errOrSuccess <- lifecycleService.uninstall(uninstallEvent).value
-            _ <- lifecycleEventHandler.afterUninstall().start.void
-            response <- errOrSuccess.fold(
-              _ => NotFound(s"Unable to uninstall addon from ${uninstallEvent.baseUrl}"),
-              _ => Ok()
-            )
-          } yield response
+        authenticateJwt(req).flatMap {
+          case Left(_) =>
+            Response[F](Status.Unauthorized).pure[F]
+
+          case Right(_) =>
+            for {
+              uninstallEvent <- req.as[UninstallEvent]
+              errOrSuccess <- lifecycleService.uninstall(uninstallEvent).value
+              response <- errOrSuccess.fold(
+                _ => NotFound(s"Unable to uninstall addon from ${uninstallEvent.baseUrl}"),
+                _ => lifecycleEventHandler.afterUninstall().start.void >> Ok()
+              )
+            } yield response
         }
     }
 
-  private def jwtAuthenticated(req: Request[F])(
-      f: AtlassianHostUser => F[Response[F]]
-  ): F[Response[F]] = {
-    val res = for {
+  private def authenticateJwt(
+      req: Request[F]
+  ): F[Either[JwtAuthenticationError, AtlassianHostUser]] =
+    (for {
       jwt <- EitherT.fromEither[F](JwtExtractor.extractJwt(req).toRight(JwtNotFound))
       ahu <- EitherT(jwtValidator.authenticate(jwt))
-    } yield f(ahu)
-
-    res.getOrElse(Response[F](Status.Unauthorized).pure[F]).flatten
-  }
+    } yield ahu).value
 }
 
 object LifecycleEndpoints {
