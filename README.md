@@ -107,7 +107,7 @@ object Main extends IOApp {
       val myService = acHttpService.liftRoutes(new AcServiceEndpoints().endpoints)
 
       val lifecycleService = new LifecycleService[IO](atlassianHostRepo, infoLogger = log => IO.delay(println(log)))
-      val lifecycleEndpoints = LifecycleEndpoints(jwtValidator, lifecycleService).endpoints
+      val lifecycleEndpoints = LifecycleEndpoints(jwtValidator, atlassianHostRepo, lifecycleService).endpoints
 
       // It is recommended to split lifecycle to different routes
       val httpApp = Router(
@@ -130,6 +130,11 @@ object Main extends IOApp {
 ## Providing your own LifecycleService
 
 You can take a look at the implementation [here](src/main/scala/com/allantl/atlassian/connect/http4s/services/lifecycle/LifecycleService.scala) and roll your own service instead.
+
+## Perform operation after lifecycle events
+
+You can provide your own implementation of `LifecycleEventHandler` when initializing `LifecycleEndpoints`.
+Method will run asynchronously in the background and will not block lifecycle event. 
 
 ## Composing Routes
 
