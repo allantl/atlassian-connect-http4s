@@ -10,6 +10,7 @@ import com.allantl.atlassian.connect.http4s.auth.atlassian.jwt.{JwtExtractor, Jw
 import com.allantl.atlassian.connect.http4s.auth.errors.{JwtAuthenticationError, JwtNotFound}
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHostUser
 import com.allantl.atlassian.connect.http4s.domain.lifecycle.{InstallEvent, UninstallEvent}
+import com.allantl.atlassian.connect.http4s.repository.algebra.AtlassianHostRepositoryAlgebra
 import com.allantl.atlassian.connect.http4s.services.lifecycle.{
   LifecycleEventHandler,
   LifecycleService,
@@ -21,6 +22,7 @@ import org.http4s.{EntityDecoder, HttpRoutes, Request, Response, Status}
 
 sealed abstract class LifecycleEndpoints[F[_]: ConcurrentEffect](
     jwtValidator: JwtValidator[F],
+    hostRepo: AtlassianHostRepositoryAlgebra[F],
     lifecycleService: LifecycleService[F],
     lifecycleEventHandler: LifecycleEventHandler[F]
 ) extends Http4sDsl[F] {
@@ -31,22 +33,33 @@ sealed abstract class LifecycleEndpoints[F[_]: ConcurrentEffect](
   val endpoints: HttpRoutes[F] =
     HttpRoutes.of[F] {
       case req @ POST -> Root / "installed" =>
-        authenticateJwt(req).flatMap {
-          case Left(_) =>
-            for {
-              installEvent <- req.as[InstallEvent]
-              _ <- lifecycleService.install(installEvent)
-              _ <- lifecycleEventHandler.afterInstall().start.void
-              ok <- Ok()
-            } yield ok
+        req.as[InstallEvent].flatMap { installEvent =>
+          if (installEvent.clientKey.isEmpty) BadRequest("Invalid install event")
+          else {
+            // Check whether addon is already installed
+            // If yes, we need to verify JWT
+            hostRepo.findByClientKey(installEvent.clientKey).flatMap {
+              case Some(_) =>
+                authenticateJwt(req).flatMap {
+                  case Left(_) =>
+                    Response[F](Unauthorized).pure[F]
 
-          case Right(ahu) =>
-            for {
-              installEvent <- req.as[InstallEvent]
-              _ <- lifecycleService.reinstall(installEvent, ahu)
-              _ <- lifecycleEventHandler.afterInstall().start.void
-              ok <- Ok()
-            } yield ok
+                  case Right(ahu) =>
+                    for {
+                      _ <- lifecycleService.reinstall(installEvent, ahu)
+                      _ <- lifecycleEventHandler.afterInstall().start.void
+                      ok <- Ok()
+                    } yield ok
+                }
+
+              case None =>
+                for {
+                  _ <- lifecycleService.install(installEvent)
+                  _ <- lifecycleEventHandler.afterInstall().start.void
+                  ok <- Ok()
+                } yield ok
+            }
+          }
         }
 
       case req @ POST -> Root / "uninstalled" =>
@@ -59,7 +72,7 @@ sealed abstract class LifecycleEndpoints[F[_]: ConcurrentEffect](
               uninstallEvent <- req.as[UninstallEvent]
               errOrSuccess <- lifecycleService.uninstall(uninstallEvent).value
               response <- errOrSuccess.fold(
-                _ => NotFound(s"Unable to uninstall addon from ${uninstallEvent.baseUrl}"),
+                _ => NotFound(s"Unable to uninstall addon from ${uninstallEvent.baseUrl} due to invalid JWT"),
                 _ => lifecycleEventHandler.afterUninstall().start.void >> Ok()
               )
             } yield response
@@ -79,14 +92,20 @@ object LifecycleEndpoints {
 
   def apply[F[_]: ConcurrentEffect](
       jwtValidator: JwtValidator[F],
+      hostRepo: AtlassianHostRepositoryAlgebra[F],
       lifecycleService: LifecycleService[F]
   ): LifecycleEndpoints[F] =
-    new LifecycleEndpoints[F](jwtValidator, lifecycleService, new NoOpLifecycleEventHandler[F]()) {}
+    new LifecycleEndpoints[F](
+      jwtValidator,
+      hostRepo,
+      lifecycleService,
+      new NoOpLifecycleEventHandler[F]()) {}
 
   def apply[F[_]: ConcurrentEffect](
       jwtValidator: JwtValidator[F],
+      hostRepo: AtlassianHostRepositoryAlgebra[F],
       lifecycleService: LifecycleService[F],
       lifecycleEventHandler: LifecycleEventHandler[F]
   ): LifecycleEndpoints[F] =
-    new LifecycleEndpoints[F](jwtValidator, lifecycleService, lifecycleEventHandler) {}
+    new LifecycleEndpoints[F](jwtValidator, hostRepo, lifecycleService, lifecycleEventHandler) {}
 }

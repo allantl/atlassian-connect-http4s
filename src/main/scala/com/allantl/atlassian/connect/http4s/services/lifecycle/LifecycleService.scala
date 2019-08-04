@@ -5,6 +5,7 @@ import cats.data.EitherT
 import cats.syntax.functor._
 import cats.syntax.flatMap._
 import cats.syntax.bifunctor._
+import cats.syntax.applicative._
 import cats.instances.either._
 import com.allantl.atlassian.connect.http4s.domain.AtlassianHost.newInstallationRecord
 import com.allantl.atlassian.connect.http4s.domain.{
@@ -31,7 +32,7 @@ class LifecycleService[F[_]: Monad](
     val logInstallEvent = if (host.baseUrl != installEvent.baseUrl) {
       infoLogger(s"Updating baseUrl from ${host.baseUrl} to ${installEvent.baseUrl} for host $host")
     } else {
-      infoLogger(s"Reinstalling addon with baseUrl ${host.baseUrl} for host $host")
+      ().pure[F]
     }
 
     for {
